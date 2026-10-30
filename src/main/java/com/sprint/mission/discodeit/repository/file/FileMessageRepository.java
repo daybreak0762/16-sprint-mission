@@ -99,4 +99,11 @@ public class FileMessageRepository implements MessageRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return this.findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .toList();
+    }
 }

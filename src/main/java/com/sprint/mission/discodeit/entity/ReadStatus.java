@@ -15,4 +15,11 @@ public class ReadStatus implements Serializable {
     private UUID channelId;
     private Instant createdAt;
     private Instant updatedAt;
+
+    public ReadStatus(UUID userId, UUID channelId) {
+        this.id = UUID.randomUUID();
+        this.userId = userId;
+        this.channelId = channelId;
+        this.createdAt = Instant.now();
+    }
 }
