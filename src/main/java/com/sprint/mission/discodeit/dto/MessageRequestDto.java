@@ -1,0 +1,11 @@
+package com.sprint.mission.discodeit.dto;
+
+import java.util.List;
+import java.util.UUID;
+
+public record MessageRequestDto(
+    UUID channelId,
+    String content,
+    UUID authorId,
+    List<BinaryContentRequestDto> attachments
+) {}

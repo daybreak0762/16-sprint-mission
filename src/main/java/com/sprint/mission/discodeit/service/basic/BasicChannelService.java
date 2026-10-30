@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -20,28 +21,30 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
-    public BasicChannelService(ChannelRepository channelRepository, ReadStatusRepository readStatusRepository, MessageRepository messageRepository) {
+    public BasicChannelService(ChannelRepository channelRepository, ReadStatusRepository readStatusRepository, MessageRepository messageRepository, BinaryContentRepository binaryContentRepository) {
         this.channelRepository = channelRepository;
         this.readStatusRepository = readStatusRepository;
         this.messageRepository = messageRepository;
+        this.binaryContentRepository = binaryContentRepository;
     }
 
     @Override
-    public ChannelResponseDto createPrivateChannel(PrivateChannelCreateDto privateChannelCreateDto) {
+    public ChannelResponseDto createPrivateChannel(PrivateChannelRequestDto privateChannelRequestDto) {
         Channel channel =
                 new Channel(ChannelType.PRIVATE, null, null);
         channelRepository.save(channel);
-        privateChannelCreateDto.userList().forEach(userId ->
+        privateChannelRequestDto.userList().forEach(userId ->
                 readStatusRepository.save(new ReadStatus(userId, channel.getId()))
         );
         return this.toDto(channel);
     }
 
     @Override
-    public ChannelResponseDto createPublicChannel(PublicChannelCreateDto publicChannelCreateDto) {
+    public ChannelResponseDto createPublicChannel(PublicChannelRequestDto publicChannelRequestDto) {
         Channel channel =
-                new Channel(ChannelType.PUBLIC, publicChannelCreateDto.name(), publicChannelCreateDto.description());
+                new Channel(ChannelType.PUBLIC, publicChannelRequestDto.name(), publicChannelRequestDto.description());
         channelRepository.save(channel);
         return this.toDto(channel);
     }
@@ -106,9 +109,15 @@ public class BasicChannelService implements ChannelService {
         if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("Channel with id " + channelId + " not found");
         }
-        readStatusRepository.findAllByChannelId(channelId).stream()
+        readStatusRepository.findAllByChannelId(channelId)
                         .forEach(readStatus -> readStatusRepository.deleteById(readStatus.getId()));
-
+        List<Message> messageList = messageRepository.findAllByChannelId(channelId);
+        messageList.stream().forEach(message -> {
+            if (message.getAttachmentIds() != null) {
+                message.getAttachmentIds().forEach(binaryContentRepository::deleteById);
+            }
+            messageRepository.deleteById(message.getId());
+        });
 
         channelRepository.deleteById(channelId);
     }

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit;
 
-import com.sprint.mission.discodeit.dto.UserCreateDto;
+import com.sprint.mission.discodeit.dto.UserRequestDto;
 import com.sprint.mission.discodeit.dto.UserResponseDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -20,8 +20,8 @@ import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 
 public class JavaApplication {
     static User setupUser(UserService userService) {
-        UserCreateDto userCreateDto = new UserCreateDto("woody", "woody@codeit.com", "woody1234", null);
-        UserResponseDto responseDto = userService.create(userCreateDto);
+        UserRequestDto userRequestDto = new UserRequestDto("woody", "woody@codeit.com", "woody1234", null);
+        UserResponseDto responseDto = userService.create(userRequestDto);
         User user = new User("woody", "woody@codeit.com", "woody1234", null);
         return user;
     }
@@ -32,7 +32,7 @@ public class JavaApplication {
     }
 
     static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-        Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
+        Message message = messageService.create("안녕하세요.");
         System.out.println("메시지 생성: " + message.getId());
     }
 

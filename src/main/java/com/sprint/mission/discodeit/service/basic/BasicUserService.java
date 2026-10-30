@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserCreateDto;
+import com.sprint.mission.discodeit.dto.UserRequestDto;
 import com.sprint.mission.discodeit.dto.UserResponseDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -28,13 +28,13 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public UserResponseDto create(UserCreateDto userCreateDto) {
-        if (userRepository.findByUsername(userCreateDto.username()).isPresent() |
-                userRepository.findByEmail(userCreateDto.email()).isPresent()) {
+    public UserResponseDto create(UserRequestDto userRequestDto) {
+        if (userRepository.findByUsername(userRequestDto.username()).isPresent() |
+                userRepository.findByEmail(userRequestDto.email()).isPresent()) {
             throw new RuntimeException("User already exists");
         }
 
-        User user = new User(userCreateDto.username(), userCreateDto.email(), userCreateDto.password(), userCreateDto.profileId());
+        User user = new User(userRequestDto.username(), userRequestDto.email(), userRequestDto.password(), userRequestDto.profileId());
         userRepository.save(user);
         UserStatus userStatus = userStatusRepository.save(new UserStatus(user.getId()));
         UserResponseDto responseDto =
@@ -66,7 +66,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public UserResponseDto update(UUID userId, UserCreateDto userCreateDto) {
+    public UserResponseDto update(UUID userId, UserRequestDto userRequestDto) {
 //        User user = userRepository.findById(userId)
 //                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 //        user.update(newUsername, newEmail, newPassword);
@@ -74,7 +74,7 @@ public class BasicUserService implements UserService {
         User  user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         UserStatus userStatus = userStatusRepository.save(new UserStatus(user.getId()));
-        user.update(userCreateDto.username(), userCreateDto.email(), userCreateDto.password());
+        user.update(userRequestDto.username(), userRequestDto.email(), userRequestDto.password());
         userRepository.save(user);
         UserResponseDto userResponseDto =
                 new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getProfileId(), userStatus.isOnline());
