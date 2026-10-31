@@ -5,12 +5,13 @@ import com.sprint.mission.discodeit.dto.MessageResponseDto;
 import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageService {
     MessageResponseDto create(MessageRequestDto messageRequestDto);
-    Message find(UUID messageId);
-    List<Message> findAll();
-    Message update(UUID messageId, String newContent);
+    MessageResponseDto find(UUID messageId);
+    List<MessageResponseDto> findAllByChannelId(UUID channelId);
+    MessageResponseDto update(UUID messageId, MessageRequestDto messageRequestDto);
     void delete(UUID messageId);
 }
